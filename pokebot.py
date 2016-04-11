@@ -6,10 +6,10 @@ from data.poketext import pokedex, templates, alternative_desc
 from argparse import ArgumentParser
 import yaml
 from functools import partial
-from wolfram import wolfram
+from wolfram import answers
 
 
-def pikachu(event, wolfram_appid=None):
+def pikachu(event, wolfram_appid=None, bingid=None):
     # Note that all messages get sent here, even if they aren't addressing the bot
 
     text = event.get('text')
@@ -24,9 +24,9 @@ def pikachu(event, wolfram_appid=None):
             # You didn't mention a pokemon or the word "pokemon" and you're not speaking to me
             return None
 
-        if event.get('speaking_to_me') and wolfram_appid:
-            # You're talking to me, but not about Pokemon. You want a Wolfram Alpha query
-            return wolfram(event, wolfram_appid)
+        if event.get('speaking_to_me'):
+            # You're talking to me, but not about Pokemon. You want real answers
+            return answers(event, wolfram_appid, bingid)
 
     return _poke_quote(pokemon)
 
@@ -81,9 +81,9 @@ if __name__ == '__main__':
     args = _parse_args()
     config = yaml.load(file(args.config, 'r'))
     if config.get('serious_business_mode'):
-        response = wolfram
+        response = answers
     else:
         response = pikachu
 
-    bot_function = partial(response, wolfram_appid=config.get('wolfram_alpha_appid'))
+    bot_function = partial(response, wolfram_appid=config.get('wolfram_alpha_appid'), bingid=config.get('bingid'))
     SlackBot(config['slack_token'], bot_function, only_speaking_to_me=False).start()
