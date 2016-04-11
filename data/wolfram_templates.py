@@ -20,7 +20,7 @@ wolfram_templates = {
                u"I was just reading about the {i2} for {i1} the other day. {answer}",
                u"Ah yes. The {i2} for {i1}: {answer}",
                u"Why do you care about the {i2} for {i1}? Anyway, it is {answer}",
-               u"I was told me the {i2} for {i1} is {answer}"],
+               u"I was told the {i2} for {i1} is {answer}"],
     "triple": [u"You want to know about the {i1}, {i2}, {i3}? {answer}",
                u"I was just reading about the {i1}, {i2} and {i3} the other day. {answer}",
                u"{i1}? {i2}? {i3}? It's probably {answer}",
