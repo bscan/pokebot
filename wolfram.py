@@ -50,7 +50,7 @@ def _wolfram_api(message, appid):
     interpretation = xml_response.findall('pod')[0].find('subpod').find('plaintext').text
     answer = xml_response.findall('pod')[1].find('subpod').find('plaintext').text
     quote = _wolfram_format_quote(interpretation, answer)
-
+    return quote
 
 def _wolfram_format_quote(interpretation, answer):
     # Try to get more conversational version of the input interpretation
