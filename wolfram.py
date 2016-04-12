@@ -30,7 +30,7 @@ def _bing_api(message, bingid):
     print u"Hitting Bing API for: " + message
     url = 'https://api.datamarket.azure.com/Bing/SearchWeb/v1/Web'
     auth = ('', bingid)
-    message = message.replace("'", '&#39;')
+    message = message.replace("'", "''")  # Escape single quotes
     params = {'Query': u"'{0}'".format(message), '$format': 'json', '$top': 1, 'Adult': "'Strict'"}
     response = requests.get(url, auth=auth, params=params)
     print response.content
