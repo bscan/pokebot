@@ -52,12 +52,14 @@ def _wolfram_api(message, appid):
     quote = _wolfram_format_quote(interpretation, answer)
     return quote
 
+
 def _wolfram_format_quote(interpretation, answer):
     # Try to get more conversational version of the input interpretation
     # Example input is "Canada | population"
 
-    if not answer:
-        answer = random.choice(wolfram_templates['answer_fail'])
+    # Make sure we got a valid answer, or else we should just try something else
+    assert answer
+    assert answer != '(data not available)'
 
     answer = _wolfram_decode(answer)
     interpretation = _wolfram_decode(interpretation)
