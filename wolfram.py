@@ -3,7 +3,7 @@ import requests
 import xml.etree.ElementTree as ET
 import random
 import traceback
-
+import re
 
 def answers(event, wolfram_appid, bingid):
     # This function can also be used directly as a response function if you want to remove the Pokemon stuff
@@ -44,6 +44,8 @@ def _bing_api(message, bingid, is_image):
 
     if is_image:
         quote = response['d']['results'][0]['MediaUrl']
+        # If we get a Giphy, ensure we are using the animated one, not the static ones
+        quote = re.sub(r'(giphy\.com\/.*)\/.+_s\.(?:jpe?g|gif)', r'\1/giphy.gif', quote)
     else:
         # Removing the protocol ensures the link doesn't expand in the messages
         link = response['d']['results'][0]['Url'].replace('https://', '').replace('http://', '')
