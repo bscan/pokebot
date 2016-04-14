@@ -15,7 +15,7 @@ def answers(event, wolfram_appid, bingid):
         return None
 
     words = [word.lower() for word in message.split() if len(word) > 1]
-    image_triggers = ['animate', 'animated', 'image', 'picture', 'meme', 'graph', 'chart']
+    image_triggers = ['giphy', 'gif', 'animate', 'animated', 'image', 'picture', 'meme', 'graph', 'chart']
     is_image = len(set(words).intersection(image_triggers)) > 0
 
     try:
