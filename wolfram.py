@@ -14,30 +14,40 @@ def answers(event, wolfram_appid, bingid):
         # Don't waste API calls on mostly empty strings
         return None
 
+    words = [word.lower() for word in message.split() if len(word) > 1]
+    image_triggers = ['animate', 'animated', 'image', 'picture', 'meme', 'graph', 'chart']
+    is_image = len(set(words).intersection(image_triggers)) > 0
+
     try:
-        assert wolfram_appid
+        assert wolfram_appid and not is_image
+        # TODO: Enable wolfram images for graphs
         return _wolfram_api(message, wolfram_appid)
     except Exception:
         try:
             assert bingid
-            return _bing_api(message, bingid)
+            return _bing_api(message, bingid, is_image)
         except Exception:
             traceback.print_exc()
             return random.choice(wolfram_templates['fail'])
 
 
-def _bing_api(message, bingid):
+def _bing_api(message, bingid, is_image):
     print u"Hitting Bing API for: " + message
-    url = 'https://api.datamarket.azure.com/Bing/SearchWeb/v1/Web'
+    api_loc = 'Image' if is_image else 'Web'
+    url = 'https://api.datamarket.azure.com/Bing/Search/v1/' + api_loc
     auth = ('', bingid)
     message = message.replace("'", "''")  # Escape single quotes
     params = {'Query': u"'{0}'".format(message), '$format': 'json', '$top': 1, 'Adult': "'Strict'"}
     response = requests.get(url, auth=auth, params=params)
-    print response.content
+    #print response.content
     response = response.json()
-    # Removing the protocol ensures the link doesn't expand in the messages
-    link = response['d']['results'][0]['Url'].replace('https://', '').replace('http://', '')
-    quote = response['d']['results'][0]['Description'] + u" " + link
+
+    if is_image:
+        quote = response['d']['results'][0]['MediaUrl']
+    else:
+        # Removing the protocol ensures the link doesn't expand in the messages
+        link = response['d']['results'][0]['Url'].replace('https://', '').replace('http://', '')
+        quote = response['d']['results'][0]['Description'] + u" " + link
     assert len(quote) > 1
     return quote
 

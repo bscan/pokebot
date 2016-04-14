@@ -12,6 +12,10 @@ from wolfram import answers
 def pikachu(event, wolfram_appid=None, bingid=None):
     # Note that all messages get sent here, even if they aren't addressing the bot
 
+    if event.get('speaking_to_me'):
+        # You're talking to me, you want real answers
+        return answers(event, wolfram_appid, bingid)
+
     text = event.get('text')
     for pnc in [",", ".", "?", "'", '"', '!', ':', '-']:
         text = text.replace(pnc, ' ')
@@ -20,13 +24,8 @@ def pikachu(event, wolfram_appid=None, bingid=None):
     pokemon = list(set(words).intersection(pokedex.keys()))
 
     if len(pokemon) == 0 and len(set(words).intersection([u'Pokemon'])) == 0:
-        if not event.get('speaking_to_me'):
-            # You didn't mention a pokemon or the word "pokemon" and you're not speaking to me
-            return None
-
-        if event.get('speaking_to_me'):
-            # You're talking to me, but not about Pokemon. You want real answers
-            return answers(event, wolfram_appid, bingid)
+        # You didn't mention a pokemon or the word "pokemon" and you're not speaking to me
+        return None
 
     return _poke_quote(pokemon)
 
