@@ -5,7 +5,7 @@ import random
 import traceback
 import re
 
-def answers(event, wolfram_appid, bingid):
+def answers(client, event, wolfram_appid, bingid):
     # This function can also be used directly as a response function if you want to remove the Pokemon stuff
 
     message = event.get('text_query', '')

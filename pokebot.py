@@ -9,17 +9,19 @@ from functools import partial
 from wolfram import answers
 
 
-def pikachu(event, wolfram_appid=None, bingid=None):
+def pikachu(client, event, wolfram_appid=None, bingid=None):
     # Note that all messages get sent here, even if they aren't addressing the bot
-
-    if event.get('speaking_to_me'):
-        # You're talking to me, you want real answers
-        return answers(event, wolfram_appid, bingid)
 
     text = event.get('text')
     for pnc in [",", ".", "?", "'", '"', '!', ':', '-']:
         text = text.replace(pnc, ' ')
     words = [word.lower().capitalize() for word in text.split() if len(word) > 1]
+
+    _reactions(client, event, words)
+
+    if event.get('speaking_to_me'):
+        # You're talking to me, you want real answers
+        return answers(client, event, wolfram_appid, bingid)
 
     pokemon = list(set(words).intersection(pokedex.keys()))
 
@@ -28,6 +30,12 @@ def pikachu(event, wolfram_appid=None, bingid=None):
         return None
 
     return _poke_quote(pokemon)
+
+
+def _reactions(client, event, words):
+    swears = set(words).intersection(['Fuck', 'Fuckity', 'Fucks', 'F***'])
+    if len(swears) > 0:
+        client.api_call("reactions.add", name='fbomb', channel=event['channel'], timestamp=event['ts'])
 
 
 def _poke_quote(pokemon):
