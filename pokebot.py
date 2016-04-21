@@ -33,7 +33,7 @@ def pikachu(client, event, wolfram_appid=None, bingid=None):
 
 
 def _reactions(client, event, words):
-    swears = set(words).intersection(['Fuck', 'Fuckity', 'Fucks', 'F***'])
+    swears = set(words).intersection(['Fuck', 'Fuckity', 'Fucks', 'F***', 'Fucking', 'Fucked', 'Fbomb', 'Fbombs'])
     if len(swears) > 0:
         client.api_call("reactions.add", name='fbomb', channel=event['channel'], timestamp=event['ts'])
 
