@@ -41,19 +41,19 @@ def _reactions(client, event, words):
     if len(swears) > 0:
         client.api_call("reactions.add", name='fbomb', channel=event['channel'], timestamp=event['ts'])
 
-    trump = set(words).intersection(['Trump', 'Drumpf', 'Democrat'])
-    if len(trump) > 0:
+    trump = len(set(words).intersection(['Trump', 'Drumpf', 'Democrat'])) > 0
+    hillary = len(set(words).intersection(['Hillary', 'Clinton', 'Obama', 'Republican'])) > 0
+    generic = len(set(words).intersection(['Election', 'President', 'Presidential', 'Electoral', 'Politics',
+                                           'Constitution', 'Vote', 'Voting'])) > 0
+
+    if trump and not hillary:
         client.api_call("reactions.add", name='hillary', channel=event['channel'], timestamp=event['ts'])
-
-    hillary = set(words).intersection(['Hillary', 'Clinton', 'Obama', 'Republican'])
-    if len(hillary) > 0:
+    elif hillary and not trump:
         client.api_call("reactions.add", name='trump', channel=event['channel'], timestamp=event['ts'])
-
-    generic = set(words).intersection(['Election', 'President', 'Presidential', 'Electoral', 'Politics',
-                                       'Constitution', 'Vote', 'Voting'])
-    if len(generic) > 0:
+    elif generic or hillary or trump:
         client.api_call("reactions.add", name=random.choice(['trump', 'hillary']), channel=event['channel'],
                         timestamp=event['ts'])
+
 
 def _poke_quote(pokemon):
     if len(pokemon) == 0:
