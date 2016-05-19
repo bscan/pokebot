@@ -19,7 +19,7 @@ def pikachu(client, event, wolfram_appid=None, bingid=None):
 
     _reactions(client, event, words)
 
-    if 'Pikachu' in words:
+    if 'Pikachu' in words and not event.get('speaking_to_me'):
         event['text_query'] = event.get('text_query', '').replace('Pikachu', ' ').replace('pikachu', ' ')
         event['speaking_to_me'] = True
 
