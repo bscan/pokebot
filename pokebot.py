@@ -7,17 +7,21 @@ from argparse import ArgumentParser
 import yaml
 from functools import partial
 from wolfram import answers
-
+import string
 
 def pikachu(client, event, wolfram_appid=None, bingid=None):
     # Note that all messages get sent here, even if they aren't addressing the bot
 
     text = event.get('text')
-    for pnc in [",", ".", "?", "'", '"', '!', ':', '-']:
+    for pnc in u"“”" + string.punctuation:
         text = text.replace(pnc, ' ')
     words = [word.lower().capitalize() for word in text.split() if len(word) > 1]
 
     _reactions(client, event, words)
+
+    if 'Pikachu' in words:
+        event['text_query'] = event.get('text_query', '').replace('Pikachu', ' ').replace('pikachu', ' ')
+        event['speaking_to_me'] = True
 
     if event.get('speaking_to_me'):
         # You're talking to me, you want real answers
@@ -37,6 +41,19 @@ def _reactions(client, event, words):
     if len(swears) > 0:
         client.api_call("reactions.add", name='fbomb', channel=event['channel'], timestamp=event['ts'])
 
+    trump = set(words).intersection(['Trump', 'Drumpf', 'Democrat'])
+    if len(trump) > 0:
+        client.api_call("reactions.add", name='hillary', channel=event['channel'], timestamp=event['ts'])
+
+    hillary = set(words).intersection(['Hillary', 'Clinton', 'Obama', 'Republican'])
+    if len(hillary) > 0:
+        client.api_call("reactions.add", name='trump', channel=event['channel'], timestamp=event['ts'])
+
+    generic = set(words).intersection(['Election', 'President', 'Presidential', 'Electoral', 'Politics',
+                                       'Constitution', 'Vote', 'Voting'])
+    if len(generic) > 0:
+        client.api_call("reactions.add", name=random.choice(['trump', 'hillary']), channel=event['channel'],
+                        timestamp=event['ts'])
 
 def _poke_quote(pokemon):
     if len(pokemon) == 0:
