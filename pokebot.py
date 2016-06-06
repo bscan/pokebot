@@ -8,6 +8,7 @@ import yaml
 from functools import partial
 from wolfram import answers
 import string
+import re
 
 def pikachu(client, event, wolfram_appid=None, bingid=None):
     # Note that all messages get sent here, even if they aren't addressing the bot
@@ -18,6 +19,11 @@ def pikachu(client, event, wolfram_appid=None, bingid=None):
     words = [word.lower().capitalize() for word in text.split() if len(word) > 1]
 
     _reactions(client, event, words)
+
+    cmd_response = _commands(client, event, words)
+
+    if cmd_response:
+        return cmd_response
 
     if 'Pikachu' in words and not event.get('speaking_to_me'):
         event['text_query'] = event.get('text_query', '').replace('Pikachu', ' ').replace('pikachu', ' ')
@@ -35,6 +41,32 @@ def pikachu(client, event, wolfram_appid=None, bingid=None):
 
     return _poke_quote(pokemon)
 
+
+def _commands(client, event, words):
+
+    text = event.get('text')
+
+    if text.lower() == 'standup!':
+        return """Hey, <!channel> , it's time for our :slack: Standup! Respond with:
+       I am working on OPTI-XXXX and am {[on track with X days left|facing some issues but am on it|will be delayed]}
+Optionally followed by:
+       I had to stop working on OPTI-XXXX due to {unforeseen reason here}
+       I completed my work on OPTI-XXXX
+Who wants to go first?"""
+
+    tickets = re.findall("(OPTI-\d+)", text)
+    if tickets:
+        links = [" <https://nanigans.atlassian.net/browse/{ticket}|{ticket}> ".format(ticket=ticket) for ticket in tickets]
+        message = "Great Job on " + ", ".join(links) + "!" + "\n" + "Who's up next?"
+        print "Sending" + message + " to: " + str(event['channel'])
+        client.api_call("chat.postMessage", text=message, channel=event['channel'], as_user=True)
+        return ""
+
+    # if text.lower().startswith('interns'): # and event.get('channel') == 'C054GJYFE':
+    #     responses = ['Pinging', 'Announcement for', 'I think that was meant for']
+    #     return random.choice(responses) + " <@bscannell> and <@magic>"
+
+    return None
 
 def _reactions(client, event, words):
     swears = set(words).intersection(['Fuck', 'Fuckity', 'Fucks', 'F***', 'Fucking', 'Fucked', 'Fbomb', 'Fbombs'])
