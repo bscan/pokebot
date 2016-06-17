@@ -47,6 +47,7 @@ def pikachu(client, event, wolfram_appid=None, bingid=None):
 
 
 def _commands(client, event, words):
+    # TODO: move all this stuff into the config file
 
     text = event.get('text')
 
@@ -54,14 +55,14 @@ def _commands(client, event, words):
         members = _get_quasirandom_userlist(client, event)
         response_message = """Hey, <!channel> , it's time for our :slack: Standup! Respond with:
        I am working on OPTI-XXXX and (more details here)
-Optionally followed by:
-       I had to stop working on OPTI-XXXX due to (unforeseen reason here)
-       I completed my work on OPTI-XXXX
+Check out your <https://nanigans.atlassian.net/secure/RapidBoard.jspa?rapidView=11&quickFilter=27|Jira board>!
 Today's standup order will be {order}
 <@{user}>, you're first!""".format(order=", ".join(members), user=members[0])
-        return response_message
+        # Links only work via API, not the RTM client
+        client.api_call("chat.postMessage", text=response_message, channel=event['channel'], as_user=True)
+        return ""
 
-    tickets = re.findall("((?i)OPTI-\d+)", text)
+    tickets = re.findall("((?i)OPTI-\d+|OPTR-\d+|PARCH-\d+|AN-\d+)", text)
     if tickets:
         links = [" <https://nanigans.atlassian.net/browse/{ticket}|{ticket}> ".format(ticket=ticket) for ticket in tickets]
         members = _get_quasirandom_userlist(client, event)
