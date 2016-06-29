@@ -51,6 +51,9 @@ def _commands(client, event, words):
 
     text = event.get('text')
 
+    if 'optbox' in text.lower():
+        return "*Rakbox"
+
     if text.lower() == 'standup!':
         members = _get_quasirandom_userlist(client, event)
         response_message = """Hey, <!channel> , it's time for our :slack: Standup! Respond with:
