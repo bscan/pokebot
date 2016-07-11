@@ -19,8 +19,6 @@ def pikachu(client, event, wolfram_appid=None, bingid=None):
         text = text.replace(pnc, ' ')
     words = [word.lower().capitalize() for word in text.split() if len(word) > 1]
 
-    _reactions(client, event, words)
-
     cmd_response = _commands(client, event, words)
 
     if cmd_response:
@@ -29,21 +27,22 @@ def pikachu(client, event, wolfram_appid=None, bingid=None):
         # List channels that he won't respond in other than commands
         return None
 
-    if 'Pikachu' in words and not event.get('speaking_to_me'):
-        event['text_query'] = event.get('text_query', '').replace('Pikachu', ' ').replace('pikachu', ' ')
-        event['speaking_to_me'] = True
-
     if event.get('speaking_to_me'):
         # You're talking to me, you want real answers
         return answers(client, event, wolfram_appid, bingid)
+    else:
+        pokemon = list(set(words).intersection(pokedex.keys()))
 
-    pokemon = list(set(words).intersection(pokedex.keys()))
-
-    if len(pokemon) == 0 and len(set(words).intersection([u'Pokemon'])) == 0:
-        # You didn't mention a pokemon or the word "pokemon" and you're not speaking to me
-        return None
-
-    return _poke_quote(pokemon)
+        if len(pokemon) == 0:
+            # You didn't mention and you're not speaking to me
+            return None
+        else:
+            for pokemon_name in pokemon:
+                try:
+                    print client.api_call("reactions.add", name=pokemon_name.lower(), channel=event['channel'], timestamp=event['ts'])
+                except Exception as e:
+                    pass
+            return None
 
 
 def _commands(client, event, words):
@@ -125,38 +124,38 @@ def _reactions(client, event, words):
 
 
 
-def _poke_quote(pokemon):
-    if len(pokemon) == 0:
-        # Been triggered, but the user didn't specify a specific Pokemon. Draw a random one.
-        pokemon = [random.choice(pokedex.keys())]
-        odds = {"description": 1, "type": 1, "statement": 2}
-    else:
-        odds = {"description": 100, "type": 10, "statement": 2}
-
-    if len(pokemon) == 1:
-        desc = random.choice(alternative_desc.get(pokemon[0], []) + [pokedex[pokemon[0]].get('description')])
-        if not desc: odds['description'] = 0
-        ptype = pokedex[pokemon[0]].get('firstType')
-        if not ptype: odds['type'] = 0
-        quote_choice = random.choice(templates[_weighted_choice(odds)])
-        quote = quote_choice.format(name=pokemon[0], ptype=ptype.lower(), desc=desc)
-    elif len(pokemon) == 2:
-        quote = random.choice(templates['double']).format(pokemon[0], pokemon[1])
-    else:  # len(pokemon) > 2:
-        quote = random.choice(templates['many']).format(u", ".join([p for p in pokemon[:-1]]) + " and " + pokemon[-1])
-    return quote
-
-
-def _weighted_choice(choices):
-    # http://stackoverflow.com/questions/3679694/
-    total = sum(w for c, w in choices.items())
-    r = random.uniform(0, total)
-    upto = 0
-    for c, w in choices.items():
-        if upto + w >= r:
-            return c
-        upto += w
-    assert False, "Shouldn't get here"
+# def _poke_quote(pokemon):
+#     if len(pokemon) == 0:
+#         # Been triggered, but the user didn't specify a specific Pokemon. Draw a random one.
+#         pokemon = [random.choice(pokedex.keys())]
+#         odds = {"description": 1, "type": 1, "statement": 2}
+#     else:
+#         odds = {"description": 100, "type": 10, "statement": 2}
+#
+#     if len(pokemon) == 1:
+#         desc = random.choice(alternative_desc.get(pokemon[0], []) + [pokedex[pokemon[0]].get('description')])
+#         if not desc: odds['description'] = 0
+#         ptype = pokedex[pokemon[0]].get('firstType')
+#         if not ptype: odds['type'] = 0
+#         quote_choice = random.choice(templates[_weighted_choice(odds)])
+#         quote = quote_choice.format(name=pokemon[0], ptype=ptype.lower(), desc=desc)
+#     elif len(pokemon) == 2:
+#         quote = random.choice(templates['double']).format(pokemon[0], pokemon[1])
+#     else:  # len(pokemon) > 2:
+#         quote = random.choice(templates['many']).format(u", ".join([p for p in pokemon[:-1]]) + " and " + pokemon[-1])
+#     return quote
+#
+#
+# def _weighted_choice(choices):
+#     # http://stackoverflow.com/questions/3679694/
+#     total = sum(w for c, w in choices.items())
+#     r = random.uniform(0, total)
+#     upto = 0
+#     for c, w in choices.items():
+#         if upto + w >= r:
+#             return c
+#         upto += w
+#     assert False, "Shouldn't get here"
 
 
 def _parse_args():
