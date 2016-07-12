@@ -23,11 +23,7 @@ def pikachu(client, event, wolfram_appid=None, bingid=None):
 
     if cmd_response:
         return cmd_response
-    elif event.get('channel') == 'G1EEN6V9D':
-        # List channels that he won't respond in other than commands
-        return None
-
-    if event.get('speaking_to_me'):
+    elif event.get('speaking_to_me'):
         # You're talking to me, you want real answers
         return answers(client, event, wolfram_appid, bingid)
     else:
@@ -39,7 +35,7 @@ def pikachu(client, event, wolfram_appid=None, bingid=None):
         else:
             for pokemon_name in pokemon:
                 try:
-                    print client.api_call("reactions.add", name=pokemon_name.lower(), channel=event['channel'], timestamp=event['ts'])
+                    client.api_call("reactions.add", name=pokemon_name.lower(), channel=event['channel'], timestamp=event['ts'])
                 except Exception as e:
                     pass
             return None
