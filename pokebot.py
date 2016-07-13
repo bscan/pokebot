@@ -35,9 +35,11 @@ def pikachu(client, event, wolfram_appid=None, bingid=None):
         else:
             for pokemon_name in pokemon:
                 try:
-                    client.api_call("reactions.add", name=pokemon_name.lower(), channel=event['channel'], timestamp=event['ts'])
+                    results = client.api_call("reactions.add", name=pokemon_name.lower() + '2', channel=event['channel'], timestamp=event['ts'])
+                    if not results['ok']:
+                        client.api_call("reactions.add", name=pokemon_name.lower(), channel=event['channel'], timestamp=event['ts'])
                 except Exception as e:
-                    pass
+                        pass
             return None
 
 
