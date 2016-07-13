@@ -15,7 +15,7 @@ def pikachu(client, event, wolfram_appid=None, bingid=None):
     # Note that all messages get sent here, even if they aren't addressing the bot
 
     text = event.get('text')
-    for pnc in u"“”" + string.punctuation:
+    for pnc in u"“”" + string.punctuation.replace(':', ''): # Remove : so emoji's don't get repeated
         text = text.replace(pnc, ' ')
     words = [word.lower().capitalize() for word in text.split() if len(word) > 1]
 
