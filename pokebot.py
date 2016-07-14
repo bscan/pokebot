@@ -11,40 +11,34 @@ import string
 import re
 import time
 
+
 def pikachu(client, event, wolfram_appid=None, bingid=None):
     # Note that all messages get sent here, even if they aren't addressing the bot
+
+    _standup_commands(client, event)
 
     text = event.get('text')
     for pnc in u"“”" + string.punctuation.replace(':', ''): # Remove : so emoji's don't get repeated
         text = text.replace(pnc, ' ')
+
+    # lower case but capitalized to match pokedex
     words = [word.lower().capitalize() for word in text.split() if len(word) > 1]
 
-    cmd_response = _commands(client, event, words)
-
-    if cmd_response:
-        return cmd_response
-    elif event.get('speaking_to_me'):
+    if event.get('speaking_to_me'):
         # You're talking to me, you want real answers
         return answers(client, event, wolfram_appid, bingid)
     else:
         pokemon = list(set(words).intersection(pokedex.keys()))
 
-        if len(pokemon) == 0:
-            # You didn't mention and you're not speaking to me
-            return None
-        else:
-            for pokemon_name in pokemon:
-                try:
-                    results = client.api_call("reactions.add", name=pokemon_name.lower() + '2', channel=event['channel'], timestamp=event['ts'])
-                    if not results['ok']:
-                        client.api_call("reactions.add", name=pokemon_name.lower(), channel=event['channel'], timestamp=event['ts'])
-                except Exception as e:
-                        pass
-            return None
+        for pokemon_name in pokemon:
+            results = client.api_call("reactions.add", name=pokemon_name.lower() + '2', channel=event['channel'], timestamp=event['ts'])
+            if not results['ok']:
+                client.api_call("reactions.add", name=pokemon_name.lower(), channel=event['channel'], timestamp=event['ts'])
+        return None
 
 
-def _commands(client, event, words):
-    # TODO: move all this stuff into the config file
+def _standup_commands(client, event):
+    # Extra function to do whatever. Doesn't return anything
 
     text = event.get('text')
 
@@ -57,7 +51,6 @@ Today's standup order will be {order}
 <@{user}>, you're first!""".format(order=", ".join(members), user=members[0])
         # Links only work via API, not the RTM client
         client.api_call("chat.postMessage", text=response_message, channel=event['channel'], as_user=True)
-        return ""
 
     tickets = re.findall("((?i)OPTI-\d+|OPTR-\d+|PARCH-\d+|AN-\d+)", text)
     if tickets:
@@ -89,13 +82,6 @@ Today's standup order will be {order}
         # message = "Great Job on " + ", ".join(links) + "!" + "\n" + "Who's up next?"
         print "Sending" + message + " to: " + str(event['channel'])
         client.api_call("chat.postMessage", text=message, channel=event['channel'], as_user=True)
-        return ""
-
-    # if text.lower().startswith('interns'): # and event.get('channel') == 'C054GJYFE':
-    #     responses = ['Pinging', 'Announcement for', 'I think that was meant for']
-    #     return random.choice(responses) + " <@bscannell> and <@magic>"
-
-    return None
 
 
 def _get_quasirandom_userlist(client, event, excluded_users=['opt-bot', 'internpikachu', 'quip']):
@@ -110,47 +96,6 @@ def _get_quasirandom_userlist(client, event, excluded_users=['opt-bot', 'internp
     myrandom.shuffle(members)
 
     return members
-
-
-def _reactions(client, event, words):
-    swears = set(words).intersection(['Fuck', 'Fuckity', 'Fucks', 'F***', 'Fucking', 'Fucked', 'Fbomb', 'Fbombs'])
-    if len(swears) > 0:
-        client.api_call("reactions.add", name='fbomb', channel=event['channel'], timestamp=event['ts'])
-
-
-
-# def _poke_quote(pokemon):
-#     if len(pokemon) == 0:
-#         # Been triggered, but the user didn't specify a specific Pokemon. Draw a random one.
-#         pokemon = [random.choice(pokedex.keys())]
-#         odds = {"description": 1, "type": 1, "statement": 2}
-#     else:
-#         odds = {"description": 100, "type": 10, "statement": 2}
-#
-#     if len(pokemon) == 1:
-#         desc = random.choice(alternative_desc.get(pokemon[0], []) + [pokedex[pokemon[0]].get('description')])
-#         if not desc: odds['description'] = 0
-#         ptype = pokedex[pokemon[0]].get('firstType')
-#         if not ptype: odds['type'] = 0
-#         quote_choice = random.choice(templates[_weighted_choice(odds)])
-#         quote = quote_choice.format(name=pokemon[0], ptype=ptype.lower(), desc=desc)
-#     elif len(pokemon) == 2:
-#         quote = random.choice(templates['double']).format(pokemon[0], pokemon[1])
-#     else:  # len(pokemon) > 2:
-#         quote = random.choice(templates['many']).format(u", ".join([p for p in pokemon[:-1]]) + " and " + pokemon[-1])
-#     return quote
-#
-#
-# def _weighted_choice(choices):
-#     # http://stackoverflow.com/questions/3679694/
-#     total = sum(w for c, w in choices.items())
-#     r = random.uniform(0, total)
-#     upto = 0
-#     for c, w in choices.items():
-#         if upto + w >= r:
-#             return c
-#         upto += w
-#     assert False, "Shouldn't get here"
 
 
 def _parse_args():
