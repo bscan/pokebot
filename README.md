@@ -1,8 +1,8 @@
 Pokébot
 =============
-Slack chat-bot that can query Wolfram Alpha, Bing, and will also respond to queries on over 700 Pokemon.
+Slack chat-bot that can query Wolfram Alpha, Bing, and will also add emoji reactions to queries on over 700 Pokemon.
 
-The bot will detect any mention of a Pokémon (e.g. pikachu) and respond with a random fact pertaining to the mentioned Pokémon. If you as the bot a question directly using the @yourbotname callout, it will query wolfram Alpha and formulate a response to seem smart. If Wolfram Alpha does not produce an answer, it will then query the Bing API for results. Both the Pokémon functionality and wolfram alpha functionality may be disabled individually if desired.
+If you as the bot a question directly using the @yourbotname callout, it will query wolfram Alpha and formulate a response to seem smart. If Wolfram Alpha does not produce an answer, it will then query the Bing API for results. The bot will detect any mention of a Pokémon (e.g. pikachu) and is currently configured to "react" with the corresponding Pokémon emoji (if already uploaded to slack). The code can alternatively be easily modified to respond with a random poke-fact on the mentioned Pokemon. Both the Pokémon functionality and wolfram alpha functionality may be disabled individually if desired.
 
 
 Usage
