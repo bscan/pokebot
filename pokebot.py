@@ -52,7 +52,7 @@ Today's standup order will be {order}
         # Links only work via API, not the RTM client
         client.api_call("chat.postMessage", text=response_message, channel=event['channel'], as_user=True)
 
-    tickets = re.findall("((?i)OPTI-\d+|OPTR-\d+|PARCH-\d+|AN-\d+)", text)
+    tickets = re.findall("((?i)OPTI-\d+|OPTR-\d+|PARCH-\d+|APPOPT-\d+|AN-\d+)", text)
     if tickets:
         links = [" <https://nanigans.atlassian.net/browse/{ticket}|{ticket}> ".format(ticket=ticket) for ticket in tickets]
         members = _get_quasirandom_userlist(client, event)
